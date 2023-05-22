@@ -11,7 +11,7 @@ python = "^3.9"
 fastapi = {extras = ["all"], version = "^0.95.1"}
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 gunicorn = "^20.1.0"
-langchain = "^0.0.161"
+langchain = "0.0.173"
 openai = "^0.27.6"
 requests = "2.29.0"
 python-dotenv = "^1.0.0"
@@ -29,6 +29,8 @@ flake8 = "^6.0.0"
 pinecone-client = "^2.2.1"
 tiktoken = "^0.4.0"
 pypdf = "^3.8.1"
+gpt4all = "^0.2.3"
+pygpt4all = "^1.1.0"
 
 
 [build-system]

@@ -1,3 +1,6 @@
+import os
+
+
 from typing import Any
 
 from decouple import config
@@ -9,7 +12,8 @@ from langchain.chains.conversational_retrieval.prompts import (
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import ChatAnthropic, ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.llms import OpenAI
+from langchain.llms import OpenAI, GPT4All
+
 from langchain.memory import ChatMessageHistory, ConversationBufferMemory
 from langchain.vectorstores.pinecone import Pinecone
 
@@ -85,6 +89,18 @@ class Agent:
                 )
                 if self.has_streaming
                 else ChatAnthropic(anthropic_api_key=await self._get_api_key())
+            )
+
+        if self.llm["provider"] == "gpt4all":
+            current_directory = os.path.dirname(os.path.abspath(__file__))
+            parent_directory = os.path.abspath(
+                os.path.join(current_directory, "..", "..")
+            )
+            local_path = os.path.join(parent_directory, "models", self.llm["model"])
+
+            return GPT4All(
+                model=local_path,
+                verbose=False,
             )
 
         # Use ChatOpenAI as default llm in agents
