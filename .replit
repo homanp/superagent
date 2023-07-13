@@ -1,0 +1,50 @@
+# The command that runs the program. If the interpreter field is set, it will have priority and this run command will do nothing
+run = "./replit.sh"
+
+# The primary language of the repl. There can be others, though!
+language = "python3"
+# A list of globs that specify which files and directories should
+# be hidden in the workspace.
+hidden = ["venv", ".config", "**/__pycache__", "**/.mypy_cache", "**/*.pyc"]
+
+# Specifies which nix channel to use when building the environment.
+[nix]
+channel = "stable-22_05"
+
+[env]
+VIRTUAL_ENV = "${REPL_HOME}/venv"
+PATH = "${VIRTUAL_ENV}/bin"
+PYTHONPATH = "$PYTHONHOME/lib/python3.10:${VIRTUAL_ENV}/lib/python3.10/site-packages"
+REPLIT_POETRY_PYPI_REPOSITORY = "https://package-proxy.replit.com/pypi/"
+MPLBACKEND = "TkAgg"
+POETRY_CACHE_DIR = "${REPL_HOME}/.cache/pypoetry"
+PYTHON_LD_LIBRARY_PATH="${REPL_HOME}/cpplib:${PYTHON_LD_LIBRARY_PATH}"
+
+# Configures the packager.
+[packager]
+language = "python3"
+ignoredPackages = ["unit_tests"]
+
+  [packager.features]
+  enabledForHosting = false
+  # Enable searching packages from the sidebar.
+  packageSearch = true
+  # Enable guessing what packages are needed from the code.
+  guessImports = true
+
+# These are the files that need to be preserved when this 
+# language template is used as the base language template
+# for Python repos imported from GitHub
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix", ".config", "venv"]
+
+[languages]
+
+[languages.python3]
+pattern = "**/*.py"
+
+[languages.python3.languageServer]
+start = "pylsp"
+
+[deployment]
+run = ["sh", "-c", "python3 main.py"]

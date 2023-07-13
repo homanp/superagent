@@ -4,6 +4,7 @@ __pycache__
 .venv
 superenv/
 .DS_Store
+venv/
 /.vscode
 /.codesandbox
 
