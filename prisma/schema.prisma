@@ -97,6 +97,9 @@ model Agent {
   type          AgentType       @default(REACT)
   llm           Json            @default("{ \"provider\": \"openai-chat\", \"model\": \"gpt-3.5-turbo\" }")
   hasMemory     Boolean         @default(false)
+  memorySize    Int             @default(3)
+  maxTokens     Int             @default(1024)
+  temperature   Float           @default(0)
   isPublic      Boolean         @default(false)
   AgentMemory   AgentMemory[]
   createdAt     DateTime?       @default(now())

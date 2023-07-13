@@ -6,7 +6,10 @@ class Agent(BaseModel):
     type: str
     llm: dict = None
     hasMemory: bool = False
+    memorySize: int = 3
     promptId: str = None
+    maxTokens: int = 1024
+    temperature: float = 0
 
 
 class PredictAgent(BaseModel):
