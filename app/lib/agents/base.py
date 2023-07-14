@@ -16,6 +16,10 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.llms import Cohere, OpenAI
 from langchain.memory import ChatMessageHistory, ConversationBufferMemory
 from langchain.prompts.prompt import PromptTemplate
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+)
 from langchain.schema import SystemMessage
 
 from app.lib.callbacks import StreamingCallbackHandler
@@ -62,6 +66,9 @@ class AgentBase:
         self.userId = agent.userId
         self.document = agent.document
         self.has_memory = agent.hasMemory
+        self.memory_size = agent.memorySize
+        self.max_tokens = agent.maxTokens
+        self.temperature = agent.temperature
         self.type = agent.type
         self.llm = agent.llm
         self.prompt = agent.prompt
@@ -111,6 +118,21 @@ class AgentBase:
 
     def _get_prompt(self, tools: list = None) -> Any:
         if not self.tools and not self.documents:
+            if (
+                self.llm["provider"] == "openai-chat"
+                or self.llm["provider"] == "azure-openai"
+            ):
+                system_message_prompt = SystemMessagePromptTemplate.from_template(
+                    template=self.prompt.template
+                    if self.prompt
+                    else DEFAULT_CHAT_PROMPT.template
+                )
+                return ChatPromptTemplate(
+                    input_variables=self.prompt.input_variables
+                    if self.prompt
+                    else DEFAULT_CHAT_PROMPT.input_variables,
+                    messages=[system_message_prompt],
+                )
             return (
                 PromptTemplate(
                     input_variables=self.prompt.input_variables,
@@ -136,7 +158,8 @@ class AgentBase:
         if self.llm["provider"] == "openai-chat":
             return (
                 ChatOpenAI(
-                    temperature=0,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
                     openai_api_key=self._get_api_key(),
                     model_name=self.llm["model"],
                     streaming=self.has_streaming,
@@ -151,15 +174,19 @@ class AgentBase:
                 )
                 if self.has_streaming and has_streaming != False
                 else ChatOpenAI(
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
                     model_name=self.llm["model"],
                     openai_api_key=self._get_api_key(),
-                    temperature=0,
                 )
             )
 
         if self.llm["provider"] == "openai":
             return OpenAI(
-                model_name=self.llm["model"], openai_api_key=self._get_api_key()
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                model_name=self.llm["model"],
+                openai_api_key=self._get_api_key(),
             )
 
         if self.llm["provider"] == "anthropic":
@@ -202,6 +229,8 @@ class AgentBase:
         if self.llm["provider"] == "azure-openai":
             return (
                 AzureChatOpenAI(
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
                     openai_api_key=self._get_api_key(),
                     openai_api_base=config("AZURE_API_BASE"),
                     openai_api_type=config("AZURE_API_TYPE"),
@@ -219,6 +248,8 @@ class AgentBase:
                 )
                 if self.has_streaming
                 else AzureChatOpenAI(
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
                     deployment_name=self.llm["model"],
                     openai_api_key=self._get_api_key(),
                     openai_api_base=config("AZURE_API_BASE"),
@@ -242,8 +273,9 @@ class AgentBase:
             memories = prisma.agentmemory.find_many(
                 where={"agentId": self.id},
                 order={"createdAt": "desc"},
-                take=3,
+                take=self.memory_size,
             )
+            memories = memories[::-1]
 
             [
                 history.add_ai_message(memory.message)
