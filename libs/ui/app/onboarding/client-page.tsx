@@ -50,53 +50,48 @@ export default function OnboardingClientPage() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { first_name, last_name, company } = values
+    const { first_name, last_name, company } = values;
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
+  
     if (!user?.email) {
-      toast({
-        description: `Ooops! User email is missing!`,
-        variant: "destructive",
-      })
-      return
+      toast({ description: `Ooops! User email is missing!`, variant: "destructive" });
+      return;
     }
-    const {
-      data: { token: api_key },
-    } = await api.createApiKey(user.email)
-    const params: Stripe.CustomerCreateParams = {
-      name: company,
-    }
-    let customer: Stripe.Customer | null = null
+  
+    // Create Stripe customer
+    const params: Stripe.CustomerCreateParams = { name: company };
+    let customer: Stripe.Customer | null = null;
     if (process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
-      customer = await stripe.customers.create(params)
+      customer = await stripe.customers.create(params);
     }
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        api_key,
-        first_name,
-        last_name,
-        company,
-        stripe_customer_id: customer?.id,
-        is_onboarded: true,
-      })
-      .eq("user_id", user?.id)
+  
+    // Generate the API key
+    const { data: { token: api_key } } = await api.createApiKey(user.email);
+  
+    try {
 
-    if (error) {
+      const { error }  = await supabase.rpc('perform_onboarding', {
+        user_id_param: user.id,
+        company_param: company,
+        first_name_param: first_name,
+        last_name_param: last_name,
+        email_param: user.email,
+        stripe_customer_id_param: customer?.id || null,
+        api_key_param: api_key
+      });
+  
+      if (error) throw error;
+  
+      toast({ description: "Onboarding complete!" });
+      window.location.href = "/llms";
+    } catch (error) {
       toast({
-        description: `Ooops! ${error?.message}`,
+        description: `Error during onboarding: ${(error as Error).message || 'Unknown error'}`,
         variant: "destructive",
-      })
-
-      return
+      });
     }
-
-    toast({
-      description: "Settings updated!",
-    })
-
-    window.location.href = "/llms"
   }
 
   return (

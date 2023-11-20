@@ -74,6 +74,10 @@ export const siteConfig = {
       href: "/settings/api-keys",
     },
     {
+      title: "Organizations",
+      href: "/settings/organizations",
+    },
+    {
       title: "Appearance",
       href: "/settings/appearance",
     },
