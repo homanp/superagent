@@ -40,7 +40,12 @@ export default async function Workflows({
 
   return (
     <div className="flex h-screen w-full flex-col justify-between space-y-4 overflow-hidden">
-      {checkoutSession && <CheckoutSessionStatus session={checkoutSession} />}
+      {checkoutSession && (
+        <CheckoutSessionStatus
+          // passing json object to the client component
+          session={JSON.parse(JSON.stringify(checkoutSession))}
+        />
+      )}
       <Header profile={profile} />
       <WorkflowCards workflows={workflows} />
     </div>
