@@ -2,7 +2,7 @@ import "@/styles/globals.css"
 
 import { Metadata } from "next"
 import { cookies } from "next/headers"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 
 import { siteConfig } from "@/config/site"
 import { fontSans } from "@/lib/fonts"
@@ -37,7 +37,7 @@ interface RootLayoutProps {
 export const dynamic = "force-dynamic"
 
 export default async function RootLayout({ children }: RootLayoutProps) {
-  const supabase = createRouteHandlerClient({ cookies })
+  const supabase = createServerComponentClient({ cookies })
 
   if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
     PostHogClient()
