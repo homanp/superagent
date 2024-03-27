@@ -114,6 +114,8 @@ def get_superrag_compatible_credentials(credentials: dict):
         # weaviate
         "WEAVIATE_API_KEY": "api_key",
         "WEAVIATE_URL": "host",
+        # PGVector
+        "SUPABASE_DB_URL": "database_uri",
     }
 
     superrag_credentials = {}

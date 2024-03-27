@@ -21,6 +21,8 @@ VECTOR_DB_MAPPING = {
     "astra": "ASTRA_DB",
     "weaviate": "WEAVIATE",
     "supabase": "SUPABASE",
+    # NOTE: we used "supabase" name initially for the pgvector databases in our database
+    "pgvector": "SUPABASE",
 }
 
 REVERSE_VECTOR_DB_MAPPING = {v: k for k, v in VECTOR_DB_MAPPING.items()}

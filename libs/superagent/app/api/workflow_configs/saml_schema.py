@@ -26,6 +26,7 @@ class SuperragDatabaseProvider(str, Enum):
     pinecone = "pinecone"
     weaviate = "weaviate"
     qdrant = "qdrant"
+    pgvector = "pgvector"
 
 
 class SuperragIndex(BaseModel):

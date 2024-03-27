@@ -621,16 +621,16 @@ export const siteConfig = {
       name: "Supabase",
       logo: "/supabase.png",
       description:
-        "The pgvector extension is particularly useful for tasks such as vector similarity search, retrieval, generation, and clustering",
-      formDescription: "Please enter your Supabase Pgvector credentials.",
+        "The PGVector extension is particularly useful for tasks such as vector similarity search, retrieval, generation, and clustering",
+      formDescription: "Please enter your Supabase PGVector credentials.",
       metadata: [
         {
           key: "SUPABASE_DB_URL",
           type: "input",
-          label: "Database Connection URL",
+          label: "Database Connection URI",
           placeholder: "postgres://postgres:postgres@localhost:5432/postgres",
           helpText:
-            "The connection URL for your database. You can find this in your Supabase dashboard.",
+            "The connection URI for your database. You can find this in your Supabase dashboard.",
         },
         {
           key: "SUPABASE_TABLE_NAME",
