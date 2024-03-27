@@ -43,6 +43,7 @@ from app.models.request import (
 )
 from app.utils.prisma import prisma
 from prisma.models import Agent as AgentModel
+from prisma.enums import ToolType
 
 from .base import BaseApiAgentManager
 
@@ -150,12 +151,12 @@ class ApiAgentToolManager(BaseApiAgentManager):
         new_tool = await self.create_tool(
             assistant=self.parent_agent.dict(),
             data={
-                "name": new_agent.name,
-                "description": data.get("description"),
+                **data,
                 "metadata": {
+                    **(data.get("metadata")),
                     "agentId": new_agent.id,
                 },
-                "type": "AGENT",
+                "type": ToolType.AGENT.value,
             },
         )
 
@@ -227,13 +228,19 @@ class ApiAgentToolManager(BaseApiAgentManager):
             logger.error(f"Error updating assistant: {assistant} - Error: {err}")
 
         tool = await self.get_agent_tool(assistant)
+        tool_metadata = json.loads(tool.metadata)
 
         try:
             await api_update_tool(
                 tool_id=tool.id,
-                body=ToolUpdateRequest(
-                    name=data.get("name"),
-                    description=data.get("description"),
+                body=ToolUpdateRequest.parse_obj(
+                    {
+                        **data,
+                        "metadata": {
+                            **(data.get("metadata")),
+                            "agentId": tool_metadata.get("agentId"),
+                        },
+                    }
                 ),
                 api_user=self.api_user,
             )

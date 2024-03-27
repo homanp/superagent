@@ -9,9 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import router
 from app.utils.prisma import prisma
 
-# Create a color formatter
+# Create a color formatter including file name and line number
 formatter = colorlog.ColoredFormatter(
-    "%(log_color)s%(levelname)s:  %(message)s",
+    "%(log_color)s%(asctime)s - %(levelname)s - %(pathname)s:%(lineno)d:\n%(message)s",
+    datefmt='%Y-%m-%d %H:%M:%S',
     log_colors={
         "DEBUG": "cyan",
         "INFO": "green",
@@ -21,16 +22,19 @@ formatter = colorlog.ColoredFormatter(
     },
     secondary_log_colors={},
     style="%",
-)  # Create a console handler and set the formatter
+)
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
 
+# Update basicConfig format to include file name and line number
 logging.basicConfig(
     level=logging.INFO,
-    format="%(levelname)s: %(message)s",
+    format="%(asctime)s - %(levelname)s - %(pathname)s:%(lineno)d:\n%(message)s",
     handlers=[console_handler],
     force=True,
 )
+
+logger = logging.getLogger("main")
 
 app = FastAPI(
     title="Superagent",
@@ -54,7 +58,7 @@ async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
-    print(f"Total request time: {process_time} secs")
+    logger.debug(f"Total request time: {process_time} secs")
     return response
 
 

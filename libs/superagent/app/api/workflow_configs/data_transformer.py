@@ -25,7 +25,7 @@ DEFAULT_ENCODER_OPTIONS = {
 
 SUPERRAG_MIME_TYPE_TO_EXTENSION = {
     "text/plain": "TXT",
-    "text/markdown": "MARKDOWN",
+    "text/markdown": "MD",
     "application/pdf": "PDF",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "DOCX",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "XLSX",
@@ -110,7 +110,8 @@ class DataTransformer:
         if self.assistant.get("type") == AgentType.LLM.value:
             remove_key_if_present(self.assistant, "llmModel")
         else:
-            self.assistant["llmModel"] = LLM_REVERSE_MAPPING.get(llm_model, llm_model)
+            self.assistant["llmModel"] = LLM_REVERSE_MAPPING.get(
+                llm_model, llm_model)
 
         self.assistant["metadata"] = {
             **(self.assistant.get("params") or {}),
@@ -122,7 +123,10 @@ class DataTransformer:
             tool_type = get_first_non_null_key(tool_obj)
             tool = tool_obj.get(tool_type)
 
-            rename_and_remove_keys(tool, {"use_for": "description"})
+            rename_and_remove_keys(
+                tool, {"use_for": "description",
+                       "return_direct": "returnDirect"}
+            )
 
             if tool_type:
                 tool["type"] = tool_type.upper()
@@ -177,7 +181,8 @@ class DataTransformer:
 
         # this is for superrag
         if database:
-            database_provider = REVERSE_VECTOR_DB_MAPPING.get(database.provider)
+            database_provider = REVERSE_VECTOR_DB_MAPPING.get(
+                database.provider)
             credentials = get_superrag_compatible_credentials(database.options)
             datasource["vector_database"] = {
                 "type": database_provider,
@@ -208,7 +213,8 @@ class DataTransformer:
 
     def _get_file_type(self, url: str):
         try:
-            file_type = SUPERRAG_MIME_TYPE_TO_EXTENSION[get_mimetype_from_url(url)]
+            file_type = SUPERRAG_MIME_TYPE_TO_EXTENSION[get_mimetype_from_url(
+                url)]
         except KeyError:
             supported_file_types = ", ".join(
                 value for value in SUPERRAG_MIME_TYPE_TO_EXTENSION.values()

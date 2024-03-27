@@ -67,6 +67,11 @@ class Tool(BaseModel):
     name: str
     use_for: str
     metadata: Optional[dict[str, Any]]
+    return_direct: Optional[bool] = Field(
+        default=False,
+        description="""Whether to return the tool's output directly. 
+    If this is set to true, the output of the tool will not be returned to the LLM""",
+    )
 
 
 class ToolModel(BaseModel):
@@ -120,19 +125,15 @@ class OpenAIAgent(Assistant):
     pass
 
 
-class BaseAgentToolModel(BaseModel):
-    use_for: str
-
-
-class SuperagentAgentTool(BaseAgentToolModel, SuperagentAgent):
+class SuperagentAgentTool(Tool, SuperagentAgent):
     pass
 
 
-class OpenAIAgentTool(BaseAgentToolModel, OpenAIAgent):
+class OpenAIAgentTool(Tool, OpenAIAgent):
     pass
 
 
-class LLMAgentTool(BaseAgentToolModel, LLMAgent):
+class LLMAgentTool(Tool, LLMAgent):
     pass
 
 
